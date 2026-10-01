@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz 1 | Professor Moreira</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #eaf1f8;
+  color: #162c42;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 1.55;
+}
+
+header {
+  background: #103b64;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header strong {
+  display: block;
+  font-size: 23px;
+}
+
+header small { font-size: 16px; }
+
+main {
+  max-width: 850px;
+  margin: auto;
+  padding: 18px 16px 30px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 16px;
+}
+
+.bar {
+  height: 8px;
+  background: #d3dfeb;
+  border-radius: 10px;
+  margin: 12px 0 20px;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: #2788cc;
+  border-radius: 10px;
+}
+
+article {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 5px 20px #15375512;
+}
+
+h1 {
+  font-size: 26px;
+  margin: 0 0 12px;
+}
+
+.source {
+  color: #436780;
+  font-size: 16px;
+  border-bottom: 1px solid #dae4ec;
+  padding-bottom: 14px;
+}
+
+.stem {
+  white-space: pre-line;
+  margin: 20px 0;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid #c5d4e1;
+  padding: 13px 17px;
+  background: white;
+  color: #163e60;
+}
+
+button:focus-visible {
+  outline: 3px solid #d89b00;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.option {
+  text-align: left;
+  display: flex;
+  gap: 13px;
+  width: 100%;
+  line-height: 1.45;
+}
+
+.option.selected {
+  background: #e4f1ff;
+  border: 2px solid #247abd;
+}
+
+.option.good {
+  background: #e2f8e9;
+  border: 2px solid #208345;
+}
+
+.option.bad {
+  background: #ffe8e8;
+  border: 2px solid #c33;
+}
+
+.primary {
+  background: #155d95;
+  color: white;
+  border: 0;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.feedback {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+.lamp {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #b9c5cd;
+  flex-shrink: 0;
+}
+
+.lamp.green {
+  background: #16ba54;
+  box-shadow: 0 0 14px 5px #16ba5455;
+}
+
+.lamp.red {
+  background: #ef3434;
+  box-shadow: 0 0 14px 5px #ef343455;
+}
+
+.comment {
+  color: #115d9a;
+  white-space: pre-line;
+}
+
+.answer {
+  background: #edf6ff;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+nav button {
+  flex: 1;
+  font-size: 17px;
+}
+
+.sound {
+  font-size: 15px;
+  padding: 6px 10px;
+}
+
+footer {
+  text-align: center;
+  font-size: 15px;
+  color: #55718a;
+  padding: 20px;
+}
+
+@media (max-width: 480px) {
+  article { padding: 18px; }
+  body { font-size: 19px; }
+  header strong { font-size: 21px; }
+  main { padding: 14px 10px; }
+  nav { gap: 7px; }
+  nav button { padding: 12px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <strong>Curso de Contabilidade Professor Moreira</strong>
+  <small>Estrutura Conceitual • Quiz 1 • 11 questões</small>
+</header>
+
+<main>
+  <div class="top">
+    <span id="position"></span>
+    <span id="score"></span>
+    <button id="sound" class="sound" aria-pressed="true">
+      🔊 Som ligado
+    </button>
+  </div>
+
+  <div class="bar">
+    <span id="progress"></span>
+  </div>
+
+  <article id="screen"></article>
+
+  <nav>
+    <button id="back">← Voltar</button>
+    <button id="next">Avançar →</button>
+    <button id="restart">↺ Reiniciar</button>
+  </nav>
+
+  <footer>
+    Quem quer ser aprovado <strong>estuda</strong>.
+  </footer>
+</main>
+
+<script>
+const questions = [
+  {
+    n: 7,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2024",
+    stem: "Considere os seguintes elementos das demonstrações contábeis:\n\nI. Ativo. II. Despesa. III. Receita. IV. Passivo. V. Patrimônio Líquido.\n\nDesses elementos os que apresentam natureza devedora são:",
+    options: [
+      { letter: "A", text: "I e II, apenas." },
+      { letter: "B", text: "I e III, apenas." },
+      { letter: "C", text: "II e IV, apenas." },
+      { letter: "D", text: "I, III e V, apenas." }
+    ],
+    key: "A",
+    comment: "Ativos e despesas têm, em regra, natureza devedora: aumentam por débitos. Passivos, patrimônio líquido e receitas têm natureza credora: aumentam por créditos. Logo, apenas I e II. Natureza da conta não significa que ela só possa receber lançamentos de um tipo."
+  },
+  {
+    n: 8,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2025",
+    stem: "Um supermercado funciona na região sul do país. Em maio de 2024, devido às fortes chuvas, o supermercado perdeu todo o seu estoque. Nas demonstrações contábeis mensais, em 31/05/24, o supermercado optou por baixar todo o estoque, mesmo sem ter recebido um laudo oficial, de modo a tornar as demonstrações mais úteis aos tomadores de decisões.\n\nA informação apresenta a seguinte característica qualitativa:",
+    options: [
+      { letter: "A", text: "neutralidade." },
+      { letter: "B", text: "materialidade." },
+      { letter: "C", text: "verificabilidade." },
+      { letter: "D", text: "tempestividade." }
+    ],
+    key: "D",
+    comment: "Tempestividade é disponibilizar a informação a tempo de influenciar decisões. A perda do estoque foi informada no mês em que ocorreu, sem esperar o laudo. Neutralidade é ausência de viés; verificabilidade é possibilidade de corroborar a informação; materialidade depende da natureza ou magnitude da informação."
+  },
+  {
+    n: 9,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2025",
+    stem: "De acordo com a NBC TG Estrutura Conceitual- ESTRUTURA CONCEITUAL PARA RELATÓRIO FINANCEIRO, as demonstrações contábeis consolidadas fornecem informações sobre os ativos, passivos, patrimônio líquido, receitas e despesas",
+    options: [
+      { letter: "A", text: "apenas das controladas." },
+      { letter: "B", text: "apenas da controladora." },
+      {
+        letter: "C",
+        text: "da controladora e de suas controladas, como entidades independentes."
+      },
+      {
+        letter: "D",
+        text: "da controladora e de suas controladas, como uma única entidade que reporta."
+      }
+    ],
+    key: "D",
+    comment: "Na consolidação, a controladora e suas controladas são apresentadas como uma única entidade que reporta. Não se apresentam apenas os dados da controladora ou das controladas, nem o grupo como entidades independentes. Operações internas são eliminadas na consolidação."
+  },
+  {
+    n: 10,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2025",
+    stem: "De acordo com a NBC TG Estrutura Conceitual - ESTRUTURA CONCEITUAL PARA RELATÓRIO FINANCEIRO, patrimônio líquido é a participação nos ativos da entidade após",
+    options: [
+      { letter: "A", text: "a dedução de seus passivos." },
+      { letter: "B", text: "a dedução de suas despesas." },
+      { letter: "C", text: "o acréscimo de suas receitas." },
+      { letter: "D", text: "o acréscimo de seus passivos." }
+    ],
+    key: "A",
+    comment: "Patrimônio líquido é a participação residual nos ativos depois da dedução dos passivos. Fórmula: PL = Ativo − Passivo. Receitas e despesas afetam o resultado e podem alterar o PL, mas não substituem os passivos nessa definição."
+  },
+  {
+    n: 11,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2025",
+    stem: "Segundo a NBC TG ESTRUTURA CONCEITUAL, para a representação dos relatórios financeiros ser fidedigna ela precisa ser",
+    options: [
+      { letter: "A", text: "completa, neutra e isenta de erros." },
+      { letter: "B", text: "confiável, tempestiva e com erros mínimos." },
+      { letter: "C", text: "tempestiva, útil e comparável." },
+      { letter: "D", text: "consistente, completa e compreensível." }
+    ],
+    key: "A",
+    comment: "Uma representação fidedigna deve ser completa, neutra e isenta de erros. Completa: inclui as informações necessárias à compreensão. Neutra: não tem viés na seleção ou apresentação. Isenta de erros: não contém erros ou omissões na descrição e no processo utilizado; isso não exige precisão absoluta de todas as estimativas."
+  },
+  {
+    n: 12,
+    source: "FGV - Bach (CFC)/CFC/1º Exame de Suficiência/2025",
+    stem: "A NBC TG ESTRUTURA CONCEITUAL descreve uma série de conceitos utilizados para a elaboração de relatórios financeiros para fins gerais. Relacione cada elemento a seguir com sua correta definição segundo a Estrutura Conceitual.\n\nElementos:\na. Despesa\nb. Patrimônio Líquido\nc. Receita\n\nDefinições:\nI. Aumentos nos ativos, ou reduções nos passivos, que resultam em aumento no patrimônio líquido.\nII. Reduções nos ativos, ou aumentos nos passivos, que resultam em reduções no patrimônio líquido.\nIII. Participação residual nos ativos da entidade após a dedução de todos os seus passivos.\n\nOs elementos a, b e c correspondem, respectivamente, às definições",
+    options: [
+      { letter: "A", text: "II – III – I." },
+      { letter: "B", text: "I – III – II." },
+      { letter: "C", text: "II – I – III." },
+      { letter: "D", text: "I – II – III." }
+    ],
+    key: "A",
+    comment: "Despesa corresponde à definição II: redução dos ativos ou aumento dos passivos que reduz o PL. Patrimônio líquido corresponde à III: participação residual nos ativos após deduzir os passivos. Receita corresponde à I: aumento dos ativos ou redução dos passivos que aumenta o PL. Assim: II – III – I. Aportes e distribuições aos sócios não são receitas e despesas."
+  },
+  {
+    n: 13,
+    source: "FGV - Ana CI (Pref Canaã Carajás)/Pref Canaã Carajás/2025",
+    stem: "De acordo com a premissa da continuidade operacional, presente na Estrutura Conceitual para Relatório Financeiro, presume-se que a entidade não tem a intenção e nem a necessidade de",
+    options: [
+      { letter: "A", text: "mudar a área ou o local de atuação." },
+      { letter: "B", text: "entrar em liquidação ou deixar de negociar." },
+      {
+        letter: "C",
+        text: "substituir as suas estratégias financeiras ou operacionais."
+      },
+      {
+        letter: "D",
+        text: "deixar de publicar seus relatórios contábeis ou econômicos."
+      },
+      {
+        letter: "E",
+        text: "continuar operando por tempo indeterminado ou desconhecido."
+      }
+    ],
+    key: "B",
+    comment: "A continuidade operacional pressupõe que a entidade continuará operando no futuro previsível, sem intenção nem necessidade de liquidação ou de cessar suas operações. Mudanças de endereço, estratégia ou atividade não significam, por si só, quebra da continuidade."
+  },
+  {
+    n: 14,
+    source: "FGV - AJ TRT24/TRT 24/Administrativa/Contabilidade/2025",
+    stem: "De acordo com a NBC TG Estrutura Conceitual - Estrutura Conceitual para Relatório Financeiro, o objetivo do relatório financeiro para fins gerais é fornecer informações financeiras sobre a entidade que reporta que sejam úteis para os seus principais usuários na tomada de decisões.\n\nEntre estas decisões está",
+    options: [
+      { letter: "A", text: "reter ou distribuir o resultado obtido." },
+      { letter: "B", text: "expandir ou retrair os negócios perante uma crise." },
+      {
+        letter: "C",
+        text: "aumentar ou manter o preço de venda dos produtos e serviços."
+      },
+      {
+        letter: "D",
+        text: "adotar estratégias agressivas ou conservadoras na gestão do capital circulante."
+      },
+      {
+        letter: "E",
+        text: "comprar, vender ou manter instrumento de patrimônio e de dívida."
+      }
+    ],
+    key: "E",
+    comment: "Os usuários primários tomam decisões sobre fornecer recursos à entidade, incluindo comprar, vender ou manter instrumentos de patrimônio e de dívida. Fixação de preços, expansão dos negócios e gestão do capital circulante são decisões administrativas, não o foco da alternativa pedida."
+  },
+  {
+    n: 15,
+    source: "FGV - AJ TRT24/TRT 24/Administrativa/Contabilidade/2025",
+    stem: "De acordo com a NBC TG Estrutura Conceitual - Estrutura Conceitual para Relatório Financeiro, um ativo, necessariamente,",
+    options: [
+      { letter: "A", text: "é um bem corpóreo." },
+      { letter: "B", text: "está atrelado a eventos futuros previsíveis." },
+      { letter: "C", text: "tem o potencial de produzir benefícios econômicos." },
+      {
+        letter: "D",
+        text: "representa um direito presente perante os acionistas."
+      },
+      {
+        letter: "E",
+        text: "foi adquirido pela entidade em uma transação com terceiros."
+      }
+    ],
+    key: "C",
+    comment: "Um recurso econômico é um direito com potencial de produzir benefícios econômicos. O ativo é esse recurso presente, controlado pela entidade, resultante de eventos passados. Pode ser intangível e não precisa ter sido adquirido de terceiros; propriedade física não é requisito universal."
+  },
+  {
+    n: 16,
+    source: "FGV - ADP (DPE RO)/DPE RO/Contábil/2025",
+    stem: "De acordo com o Pronunciamento Técnico CPC 00 (R2)- Estrutura Conceitual para Relatório Financeiro, o custo é uma restrição generalizada sobre as informações que podem ser fornecidas pelo relatório financeiro.\n\nEm relação a essa restrição, avalie as afirmativas a seguir e assinale (V) para a verdadeira e (F) para a falsa.\n\n( ) O relatório de informações financeiras impõe custos, e é importante que esses custos sejam justificados pelos benefícios de apresentar essas informações.\n\n( ) Os fornecedores de informações financeiras gastam a maior parte dos esforços envolvidos na coleta, processamento, verificação e disseminação de informações financeiras, mas, em última instância, os usuários arcam com esses custos na forma de retornos reduzidos.\n\n( ) Os usuários de informações financeiras podem incorrer em custos de análise e interpretação das informações fornecidas. Se as informações necessárias não são fornecidas, os usuários incorrem em custos de realizar a análise incompleta, sem as devidas informações.\n\nAs afirmativas são, respectivamente,",
+    options: [
+      { letter: "A", text: "V – V – V." },
+      { letter: "B", text: "V – V – F." },
+      { letter: "C", text: "V – F – V." },
+      { letter: "D", text: "F – V – V." },
+      { letter: "E", text: "V – F – F." }
+    ],
+    key: "B",
+    comment: "Sequência: V – V – F. Os benefícios da informação devem justificar seus custos. Quem prepara incorre nos custos de coleta e processamento, mas os usuários podem suportá-los por retornos reduzidos. A terceira é falsa porque, faltando informação, os usuários podem precisar obter informações adicionais ou estimá-las; a norma não limita o efeito a fazer uma análise incompleta."
+  },
+  {
+    n: 17,
+    source: "FGV - TDP (DPE RO)/DPE RO/Técnico em Contabilidade/2025",
+    stem: "Um médico é proprietário de uma clínica integrativa. Para avaliar como estão os seus negócios, ele estudou e adquiriu conhecimento relacionado às atividades comerciais, contábeis e econômicas e começou a revisar e analisar as informações de modo diligente.\n\nDe acordo com a característica qualitativa da Compreensibilidade, conforme o Pronunciamento Técnico CPC 00 (R2)- Estrutura Conceitual para Relatório Financeiro, os relatórios financeiros da clínica",
+    options: [
+      {
+        letter: "A",
+        text: "são elaborados para o médico, uma vez que ele deve pagar impostos sobre o resultado obtido."
+      },
+      {
+        letter: "B",
+        text: "não são elaborados para o médico, uma vez que, como dono, ele pode conseguir as informações que deseja diretamente."
+      },
+      {
+        letter: "C",
+        text: "são elaborados para o médico, uma vez que ele é o proprietário da clínica e, como consequência, interessado em seus resultados."
+      },
+      {
+        letter: "D",
+        text: "são elaborados para o médico, uma vez que ele tem conhecimento das atividades comerciais e econômicas e revisa e analisa as informações de modo diligente."
+      },
+      {
+        letter: "E",
+        text: "não são elaborados para o médico, uma vez que há pessoas na clínica responsáveis pela administração contábil e financeira dos negócios."
+      }
+    ],
+    key: "D",
+    comment: "A compreensibilidade pressupõe usuários com conhecimento razoável de atividades comerciais e econômicas e que revisem e analisem as informações diligentemente. O médico adquiriu conhecimento e passou a analisar os dados dessa forma. O gabarito considera esse perfil de usuário; ser proprietário ou pagar impostos não define a compreensibilidade."
+  }
+];
+
+let page = 0;
+let selected = Array(11).fill(null);
+let answers = Array(11).fill(null);
+let soundOn = true;
+let audioContext;
+
+const $ = id => document.getElementById(id);
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[c]));
+
+function tone(ok) {
+  if (!soundOn) return;
+
+  try {
+    audioContext ||= new (
+      window.AudioContext || window.webkitAudioContext
+    )();
+
+    audioContext.resume();
+
+    const start = audioContext.currentTime;
+    const notes = ok
+      ? [523.25, 659.25, 783.99]
+      : [220, 164.81];
+
+    notes.forEach((freq, i) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = ok ? "sine" : "triangle";
+      oscillator.frequency.value = freq;
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+
+      const time = start + i * .16;
+
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(.16, time + .02);
+      gain.gain.exponentialRampToValueAtTime(.001, time + .24);
+
+      oscillator.start(time);
+      oscillator.stop(time + .25);
+    });
+  } catch (error) {
+    // O quiz continua funcionando se o áudio não estiver disponível.
+  }
+}
+
+function render() {
+  const correct = answers.filter(
+    (answer, i) => answer === questions[i].key
+  ).length;
+
+  const done = answers.filter(Boolean).length;
+
+  $("score").textContent =
+    `${correct} acertos • ${done}/11 respondidas`;
+
+  $("progress").style.width = (done / 11 * 100) + "%";
+  $("back").disabled = page === 0;
+
+  if (page === 22) {
+    $("position").textContent = "Quiz concluído";
+
+    $("screen").innerHTML = `
+      <h1>Resultado final</h1>
+      <p>
+        Você acertou <strong>${correct} de 11</strong> questões
+        (${Math.round(correct / 11 * 100)}%).
+      </p>
+      <p>
+        Revise os comentários usando o botão Voltar ou reinicie
+        para praticar novamente.
+      </p>
+    `;
+
+    $("next").disabled = true;
+    return;
+  }
+
+  const i = Math.floor(page / 2);
+  const q = questions[i];
+  const comment = page % 2 === 1;
+  const answered = answers[i] !== null;
+  const ok = answers[i] === q.key;
+
+  $("position").textContent =
+    `Questão ${i + 1}/11 • ${comment ? "Comentário" : "Responder"}`;
+
+  $("next").disabled = !answered;
+
+  $("next").textContent = comment
+    ? (i === 10 ? "Ver resultado →" : "Próxima questão →")
+    : "Ver comentário →";
+
+  const feedback = answered ? `
+    <div class="feedback" role="status">
+      <span
+        class="lamp ${ok ? "green" : "red"}"
+        aria-hidden="true"
+      ></span>
+      <span>${ok ? "✓ Você acertou!" : "✕ Você errou."}</span>
+    </div>
+  ` : "";
+
+  const content = comment ? `
+    ${feedback}
+    <div class="answer">
+      <strong>Gabarito: ${q.key}</strong><br>
+      ${esc(q.options.find(option => option.letter === q.key).text)}
+    </div>
+    <h2>Comentário</h2>
+    <div class="comment">${esc(q.comment)}</div>
+  ` : `
+    <div class="stem">${esc(q.stem)}</div>
+
+    <div class="options">
+      ${q.options.map(option => `
+        <button
+          class="option
+            ${selected[i] === option.letter ? "selected" : ""}
+            ${answered && option.letter === q.key ? "good" : ""}
+            ${
+              answered &&
+              answers[i] === option.letter &&
+              !ok ? "bad" : ""
+            }"
+          data-letter="${option.letter}"
+          aria-pressed="${selected[i] === option.letter}"
+          ${answered ? "disabled" : ""}
+        >
+          <strong>${option.letter})</strong>
+          <span>${esc(option.text)}</span>
+        </button>
+      `).join("")}
+    </div>
+
+    <button
+      id="confirm"
+      class="primary"
+      ${answered || !selected[i] ? "disabled" : ""}
+    >
+      ${answered ? "Resposta confirmada" : "Confirmar resposta"}
+    </button>
+
+    ${feedback}
+  `;
+
+  $("screen").innerHTML = `
+    <h1>${comment ? "Comentário da questão" : "Questão"} ${q.n}</h1>
+    <div class="source">${esc(q.source)}</div>
+    ${content}
+  `;
+
+  document.querySelectorAll("[data-letter]").forEach(button => {
+    button.onclick = () => {
+      selected[i] = button.dataset.letter;
+      render();
+    };
+  });
+
+  if ($("confirm")) {
+    $("confirm").onclick = () => {
+      if (answers[i] || !selected[i]) return;
+
+      answers[i] = selected[i];
+      tone(answers[i] === q.key);
+      render();
+    };
+  }
+}
+
+function move(delta) {
+  page = Math.max(0, Math.min(22, page + delta));
+  render();
+  window.scrollTo(0, 0);
+}
+
+$("back").onclick = () => move(-1);
+
+$("next").onclick = () => {
+  if (!$("next").disabled) move(1);
+};
+
+$("restart").onclick = () => {
+  if (
+    answers.some(Boolean) &&
+    !confirm("Reiniciar o quiz e apagar as respostas desta tentativa?")
+  ) {
+    return;
+  }
+
+  page = 0;
+  selected.fill(null);
+  answers.fill(null);
+
+  render();
+  window.scrollTo(0, 0);
+};
+
+$("sound").onclick = () => {
+  soundOn = !soundOn;
+
+  $("sound").textContent = soundOn
+    ? "🔊 Som ligado"
+    : "🔇 Som desligado";
+
+  $("sound").setAttribute("aria-pressed", String(soundOn));
+};
+
+render();
+</script>
+</body>
+</html>
